@@ -1,0 +1,78 @@
+#!/bin/bash
+
+if [ $# -lt 3 ];then
+    echo "Need 3 parameters! <SRR> <species> <trimlen>"
+    exit
+fi
+
+
+R=$1
+S=$2
+T=$3
+#wget --quiet ftp-trace.ncbi.nlm.nih.gov:/sra/sra-instant/reads/ByRun/sra/SRR/${R:0:6}/${R}/${R}.sra
+#fastq-dump.2.8.0 --split-files ${R}.sra
+
+bowtie2 -p 5 -3 ${T} -X 2000 -x /scratch/sh8tv/Data/Mapping_index/bowtie2/${S}_clean -1 /scratch/sh8tv/Project/scATAC/Data/scATAC/Nature2015_GSE65360/fastq/${R}_1.fastq -2 /scratch/sh8tv/Project/scATAC/Data/scATAC/Nature2015_GSE65360/fastq/${R}_2.fastq -S ${R}.sam 2>&1 >>/dev/null | tee ${R}_bowtie2PE.out
+
+samtools view -bS ${R}.sam > ${R}_raw.bam
+
+# filtering & samTObam
+samtools view -H ${R}_raw.bam > ${R}_filtered.sam
+samtools view -f 0x2 ${R}_raw.bam | awk 'NR % 2 == 1{mapq=$5;forward=$0} NR % 2 == 0{if($5>=30 && mapq>=30 && substr($3,1,3)=="chr" && $7=="=" ) print forward"\n"$0}' >> ${R}_filtered.sam
+samtools view -bS ${R}_filtered.sam > ${R}.bam
+wait
+rm ${R}.sam ${R}_filtered.sam
+
+# PE process
+bamToBed -i ${R}.bam -bedpe | awk '{OFS="\t"; print $1,$2,$6,$7,$8,"."}' | sort -k 1,1 -k 2,2g -k 3,3g > ${R}_PE.bed
+#grep chrM ${R}_PE.bed > ${R}_PEchrM.bed
+#grep -v chrM ${R}_PE.bed > ${R}_PEnoM.bed
+
+# PE reads sorted => dupfeature
+#python /nv/vol190/zanglab/sh8tv/Script/general/readsDup_otherFeature_sortedPEbed.py -i ${R}_PE.bed -o ${R}_PE_dupFeature.bed -f 4 -g 100 -s /nv/vol190/zanglab/sh8tv/Data/Genome/${S}/${S}.2bit
+#
+
+
+
+
+#if [ ! -f ${R}_2.fastq ]
+#then
+
+#bwa aln -q 5 -l 32 -k 2 -t 8 /nv/vol190/zanglab/sh8tv/Data/Mapping_index/BWA/${S}/${S}.fa ${R}_1.fastq > ${R}_1.sai 
+#bwa samse /nv/vol190/zanglab/sh8tv/Data/Mapping_index/BWA/${S}/${S}.fa ${R}_1.sai  ${R}_1.fastq > ${R}.sam
+
+#bowtie2 -p 8 -x /mnt/Storage/home/hushengen/Data/Mapping_index/bowtie2_index/${S}_clean -U ${R}_1.fastq -S ${R}.sam   2>&1 >>/dev/null |tee -a ${R}_bowtie2_SE.out
+#rm ${R}_1.fastq
+#else
+#bwa aln -q 5 -l 32 -k 2 -t 8 /nv/vol190/zanglab/sh8tv/Data/Mapping_index/BWA/${S}/${S}.fa ${R}_1.fastq > ${R}_1.sai            
+#bwa aln -q 5 -l 32 -k 2 -t 8 /nv/vol190/zanglab/sh8tv/Data/Mapping_index/BWA/${S}/${S}.fa ${R}_2.fastq > ${R}_2.sai
+#bwa sampe /nv/vol190/zanglab/sh8tv/Data/Mapping_index/BWA/${S}/${S}.fa ${R}_1.sai ${R}_2.sai ${R}_1.fastq ${R}_2.fastq > ${R}.sam
+
+#bowtie2 -p 8 -x /mnt/Storage/home/hushengen/Data/Mapping_index/bowtie2_index/${S}_clean  -1 ${R}_1.fastq -2 ${R}_2.fastq -S ${R}.sam   2>&1 >>/dev/null |tee  -a ${R}_bowtie2_PE.out
+#rm ${R}_1.fastq
+#rm ${R}_2.fastq
+#fi
+#samtools view -bS -t /nv/vol190/zanglab/sh8tv/Data/Genome/${S}/chromInfo_${S}.txt -q 1 ${R}.sam > ${R}.bam
+#samtools view -q 30 -bht /mnt/Storage/home/hushengen/Data/Genome/${S}/chromInfo_${S}_clean.txt ${R}.sam -o ${R}.bam
+#rm ${R}.sam
+#
+#if [[ ${S} == 'mm10' ]]
+#then
+#SS='mm'
+#else
+#SS='hs'
+#fi
+
+#if [ ! -f ${R}_2.fastq ]
+#then
+#macs2 callpeak --SPMR -B -q 0.01 --keep-dup 1 -f BAM --extsize=146 --nomodel -g ${SS} -t ${R}.bam -n ${R}
+#else
+#macs2 callpeak --SPMR -B -q 0.01 --keep-dup 1 -f BAMPE -g ${SS} -t ${R}.bam -n ${R}
+#fi
+#mv ${R}_treat_pileup.bdg ${R}.bdg
+#bdg2bw ${R}.bdg /nv/vol190/zanglab/sh8tv/Data/Genome/${S}/chromInfo_${S}.txt
+#bedtools intersect -a ${R}_treat_pileup.bdg -b chromlen.bed -wa -f 1.00 > ${R}.bdg
+#bedGraphToBigWig ${R}.bdg /nv/vol190/zanglab/sh8tv/Data/Genome/${S}/chromInfo_${S}.txt ${R}.bw
+
+
+

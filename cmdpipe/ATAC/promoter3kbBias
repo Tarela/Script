@@ -1,0 +1,27 @@
+#!/bin/bash
+
+if [ $# -lt 2 ];then
+    echo "Need 2 parameters! <outname> <species> "
+    exit
+fi
+
+
+O=$1
+S=$2
+
+if [[ ${S} == 'mm10' ]]
+then
+SS='mm'
+SSS='mouse'
+else
+SS='hs'
+SSS='human'
+fi
+
+# bias generating
+intersectBed -a  /nv/vol190/zanglab/sh8tv/Project/scATAC/Data/ENCODE_ATAC/${SSS}_tissue/process36bp/${O}_PEnoM.bed -b /nv/vol190/zanglab/sh8tv/Data/refgenes/${S}/${S}_refseq_TSS3kb.bed -u > ${O}_PEnoM_ONpromoter3kb.bed
+python /nv/vol190/zanglab/sh8tv/Script/ATAC/ATACseqbias_fromBED.py -p /nv/vol190/zanglab/sh8tv/Data/refgenes/${S}/${S}_refseq_TSS3kb.bed -t ${O}_PEnoM_ONpromoter3kb.bed -o ${O}_on_promoter3kb_raw8mer.txt -f 4 -s /nv/vol190/zanglab/sh8tv/Data/Genome/${S}/${S}.2bit
+python /nv/vol190/zanglab/sh8tv/Script/ATAC/Seqbias_compare_8mer_encoding_pred_obs.py -b ${O}_on_promoter3kb_raw8mer.txt -o ${O}_on_promoter3kb_Enc8mer.txt
+#
+
+

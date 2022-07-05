@@ -1,0 +1,56 @@
+#!/bin/bash
+
+if [ $# -lt 3 ];then
+    echo "Need 3 parameters! <SRR> <species> <link>"
+    exit
+fi
+
+
+R=$1
+S=$2
+L=$3
+#wget --quiet ftp-trace.ncbi.nlm.nih.gov:/sra/sra-instant/reads/ByRun/sra/SRR/${R:0:6}/${R}/${R}.sra
+#fastq-dump.2.8.0 --split-files ${R}.sra
+wget --quiet ${L}
+gunzip ${R}.fastq.gz
+#if [ ! -f ${R}_2.fastq ]
+#then
+
+#bwa aln -q 5 -l 32 -k 2 -t 8 /nv/vol190/zanglab/sh8tv/Data/Mapping_index/BWA/${S}/${S}.fa ${R}_1.fastq > ${R}_1.sai 
+#bwa samse /nv/vol190/zanglab/sh8tv/Data/Mapping_index/BWA/${S}/${S}.fa ${R}_1.sai  ${R}_1.fastq > ${R}.sam
+
+#bowtie2 -p 8 -x /mnt/Storage/home/hushengen/Data/Mapping_index/bowtie2_index/${S}_clean -U ${R}_1.fastq -S ${R}.sam   2>&1 >>/dev/null |tee -a ${R}_bowtie2_SE.out
+#rm ${R}_1.fastq
+#else
+#bwa aln -q 5 -l 32 -k 2 -t 8 /nv/vol190/zanglab/sh8tv/Data/Mapping_index/BWA/${S}/${S}.fa ${R}_1.fastq > ${R}_1.sai            
+#bwa aln -q 5 -l 32 -k 2 -t 8 /nv/vol190/zanglab/sh8tv/Data/Mapping_index/BWA/${S}/${S}.fa ${R}_2.fastq > ${R}_2.sai
+#bwa sampe /nv/vol190/zanglab/sh8tv/Data/Mapping_index/BWA/${S}/${S}.fa ${R}_1.sai ${R}_2.sai ${R}_1.fastq ${R}_2.fastq > ${R}.sam
+
+#bowtie2 -p 8 -x /mnt/Storage/home/hushengen/Data/Mapping_index/bowtie2_index/${S}_clean  -1 ${R}_1.fastq -2 ${R}_2.fastq -S ${R}.sam   2>&1 >>/dev/null |tee  -a ${R}_bowtie2_PE.out
+#rm ${R}_1.fastq
+#rm ${R}_2.fastq
+#fi
+#samtools view -bS -t /nv/vol190/zanglab/sh8tv/Data/Genome/${S}/chromInfo_${S}.txt -q 1 ${R}.sam > ${R}.bam
+#samtools view -q 30 -bht /mnt/Storage/home/hushengen/Data/Genome/${S}/chromInfo_${S}_clean.txt ${R}.sam -o ${R}.bam
+#rm ${R}.sam
+#
+#if [[ ${S} == 'mm10' ]]
+#then
+#SS='mm'
+#else
+#SS='hs'
+#fi
+
+#if [ ! -f ${R}_2.fastq ]
+#then
+#macs2 callpeak --SPMR -B -q 0.01 --keep-dup 1 -f BAM --extsize=146 --nomodel -g ${SS} -t ${R}.bam -n ${R}
+#else
+#macs2 callpeak --SPMR -B -q 0.01 --keep-dup 1 -f BAMPE -g ${SS} -t ${R}.bam -n ${R}
+#fi
+#mv ${R}_treat_pileup.bdg ${R}.bdg
+#bdg2bw ${R}.bdg /nv/vol190/zanglab/sh8tv/Data/Genome/${S}/chromInfo_${S}.txt
+#bedtools intersect -a ${R}_treat_pileup.bdg -b chromlen.bed -wa -f 1.00 > ${R}.bdg
+#bedGraphToBigWig ${R}.bdg /nv/vol190/zanglab/sh8tv/Data/Genome/${S}/chromInfo_${S}.txt ${R}.bw
+
+
+

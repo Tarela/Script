@@ -1,0 +1,53 @@
+#!/bin/bash
+
+if [ $# -lt 2 ];then
+    echo "Need 2 parameters! <SRR> <species>"
+    exit
+fi
+
+
+R=$1
+S=$2
+#L=$3
+#wget --quiet ftp-trace.ncbi.nlm.nih.gov:/sra/sra-instant/reads/ByRun/sra/SRR/${R:0:6}/${R}/${R}.sra
+#fastq-dump.2.8.0 --split-files ${R}.sra
+#bowtie2 -p 8 -3 65 -X 2000 -x /nv/vol190/zanglab/sh8tv/Data/Mapping_index/bowtie2/${S} -1 ${R}_1.fastq -2 ${R}_2.fastq -S ${R}.sam 2>&1 >>/dev/null | tee ${R}_bowtie2PE.out
+#samtools view -bS ${R}.sam > ${R}_raw.bam
+#
+## filtering & samTObam
+#samtools view -H ${R}_raw.bam > ${R}_filtered.sam 
+#samtools view -f 0x2 ${R}_raw.bam | awk 'NR % 2 == 1{mapq=$5;forward=$0} NR % 2 == 0{if($5>=30 && mapq>=30 && substr($3,1,3)=="chr" && $7=="=" ) print forward"\n"$0}' >> ${R}_filtered.sam 
+#samtools view -bS ${R}_filtered.sam > ${R}.bam
+#
+#wait;
+#
+#rm ${R}.sam ${R}_filtered.sam &
+#rm ${R}_1.fastq ${R}_2.fastq &
+#
+## make bed file 
+#bamToBed -i ${R}.bam > ${R}.bed 
+#bamToBed -i ${R}.bam -bedpe | awk '{OFS="\t";if($2 != $5 && $3 != $6 && $9=="+" && $10 == "-") print $1,$2,$6,$7,$8,"."}' > ${R}_PE.bed 
+bamToBed -i ${R}.bam -bedpe | awk '{OFS="\t"; print $1,$2,$6,$7,$8,"."}' | sort -k 1,1 -k 2,2g -k 3,3g > ${R}_PE.bed 
+#cut -f 1-3 ${R}_PE.bed| uniq > ${R}_PEuniq.bed
+
+
+## PE reads sorted => dupfeature
+python /nv/vol190/zanglab/sh8tv/Script/general/readsDup_otherFeature_sortedPEbed.py -i ${R}_PE.bed -o ${R}_PE_dupFeature.bed -f 4 -g 100 -s /nv/vol190/zanglab/sh8tv/Data/Genome/${S}/${S}.2bit
+
+
+python /nv/vol190/zanglab/sh8tv/Script/ATAC/ATACseqbias_fromBED.py -p /nv/vol190/zanglab/sh8tv/Data/mappable_regions/own_script/sacCer3_36_chr_fareads_ge100mapregion.bed -t ${R}_PE.bed -o ${R}_raw8mer.txt -f 4 -s /nv/vol190/zanglab/sh8tv/Data/Genome/${S}/${S}.2bit
+python /nv/vol190/zanglab/sh8tv/Script/ATAC/Seqbias_compare_8mer_encoding_pred_obs.py -b ${R}_raw8mer.txt -o ${R}_Enc8mer.txt
+#
+
+
+
+#wait;
+#sort -k 1,1 -k 2,2g -k 3,3g ${R}_PE.bed > ${R}_PEsorted.bed
+
+#python /nv/vol190/zanglab/sh8tv/Script/ATAC/reads_level_cutbias.py -t ${R}_PE.bed -o ${R}_readBias.txt -f 4 -p /nv/vol190/zanglab/sh8tv/Data/mappable_regions/${S}_50_chr_fareads_ge100mapregion.bed -s /nv/vol190/zanglab/sh8tv/Data/Genome/${S}/${S}.2bit  &
+#python /nv/vol190/zanglab/sh8tv/Script/ATAC/reads_level_cutbias.py -t ${R}_PEuniq.bed -o ${R}uniq_readBias.txt -f 4 -p /nv/vol190/zanglab/sh8tv/Data/mappable_regions/${S}_50_chr_fareads_ge100mapregion.bed -s /nv/vol190/zanglab/sh8tv/Data/Genome/${S}/${S}.2bit  &
+
+#wait;
+
+#python /nv/vol190/zanglab/sh8tv/Script/ATAC/Seqbias_compare_8mer_encoding_pred_obs.py -b ${R}_readBias.txt -o ${R}_8mer_Encoding_readBias.txt
+#python /nv/vol190/zanglab/sh8tv/Script/ATAC/Seqbias_compare_8mer_encoding_pred_obs.py -b ${R}uniq_readBias.txt -o ${R}uniq_8mer_Encoding_readBias.txt

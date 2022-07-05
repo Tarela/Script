@@ -1,0 +1,21 @@
+#!/bin/bash
+
+if [ $# -lt 2 ];then
+    echo "Need 2 parameters! <tissue> <flankN>"
+    exit
+fi
+
+T=$1
+F=$2
+export PATH=~/bin:~/bin/UCSCTools:~/bin/meme/bin:~/bin/GEM:~/bin/HiC-Pro_2.11.1/bin/utils:$PATH
+export PYTHONPATH=~/lib64/python2.7/site-packages:~/lib/python2.7/site-packages:~/bin/lib64/python2.7/site-packages:$PYTHONPATH
+
+#python ~/Main/Script/ATAC/scan_peak_kmer_seqtype.py -i /nm/vol190/zanglab/sh8tv/Project/scATAC/Data/ChIP_DNase_ATAC_sametissue/ATAC_DNase_pairCMP/${T}_mergePeak400bp.bed -o ${T}_mergePeak_flank${F}_seqcount -f ${F} 
+#python ~/Main/Script/ATAC/scan_readscount_separate_cutseq_seqtypeonly_alluniqfrag.py -i /nm/vol190/zanglab/sh8tv/Project/scATAC/Data/ChIP_DNase_ATAC_sametissue/ATAC_DNase_pairCMP/${T}_mergePeak400bp.bed -o ${T}_mergePeak_flank${F}_ATAC_readscount -f ${F} -p /nm/vol190/zanglab/sh8tv/Project/scATAC/Data/ChIP_DNase_ATAC_sametissue/ATAC_DNase_pairCMP/${T}_ATAC_plus.bw -m /nm/vol190/zanglab/sh8tv/Project/scATAC/Data/ChIP_DNase_ATAC_sametissue/ATAC_DNase_pairCMP/${T}_ATAC_minus.bw
+#python ~/Main/Script/ATAC/scan_readscount_separate_cutseq_seqtypeonly_alluniqfrag.py -i /nm/vol190/zanglab/sh8tv/Project/scATAC/Data/ChIP_DNase_ATAC_sametissue/ATAC_DNase_pairCMP/${T}_mergePeak400bp.bed -o ${T}_mergePeak_flank${F}_DNase_readscount -f ${F} -p /nm/vol190/zanglab/sh8tv/Project/scATAC/Data/ChIP_DNase_ATAC_sametissue/ATAC_DNase_pairCMP/${T}_DNase_plus.bw -m /nm/vol190/zanglab/sh8tv/Project/scATAC/Data/ChIP_DNase_ATAC_sametissue/ATAC_DNase_pairCMP/${T}_DNase_minus.bw
+
+python ~/Main/Script/ATAC/scan_peak_kmer_seqtype.py -i /nv/vol190/zanglab/sh8tv/Project/scATAC/Data/ChIP_DNase_ATAC_sametissue/ATAC_DNase_pairCMP/process/${T}_mergePeak400bp.bed -o ${T}_mergePeak_flank${F}_seqcount -f ${F} 
+python ~/Main/Script/ATAC/scan_readscount_separate_cutseq_seqtypeonly_alluniqfrag.py -i /nv/vol190/zanglab/sh8tv/Project/scATAC/Data/ChIP_DNase_ATAC_sametissue/ATAC_DNase_pairCMP/process/${T}_mergePeak400bp.bed -o ${T}_mergePeak_flank${F}_ATAC_readscount -f ${F}  -p /nv/vol190/zanglab/sh8tv/Project/scATAC/Data/ChIP_DNase_ATAC_sametissue/ATAC_DNase_pairCMP/bwTrack/${T}_ATAC_plus.bw  -m /nv/vol190/zanglab/sh8tv/Project/scATAC/Data/ChIP_DNase_ATAC_sametissue/ATAC_DNase_pairCMP/bwTrack/${T}_ATAC_minus.bw
+python ~/Main/Script/ATAC/scan_readscount_separate_cutseq_seqtypeonly_alluniqfrag.py -i /nv/vol190/zanglab/sh8tv/Project/scATAC/Data/ChIP_DNase_ATAC_sametissue/ATAC_DNase_pairCMP/process/${T}_mergePeak400bp.bed -o ${T}_mergePeak_flank${F}_DNase_readscount -f ${F} -p /nv/vol190/zanglab/sh8tv/Project/scATAC/Data/ChIP_DNase_ATAC_sametissue/ATAC_DNase_pairCMP/bwTrack/${T}_DNase_plus.bw -m /nv/vol190/zanglab/sh8tv/Project/scATAC/Data/ChIP_DNase_ATAC_sametissue/ATAC_DNase_pairCMP/bwTrack/${T}_DNase_minus.bw
+
+

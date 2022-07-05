@@ -1,0 +1,6 @@
+
+cp /nv/vol190/zanglab/zw5j/work2017/T_ALL_CTCF/11_HiC_analysis/f1_preprocess/union_binding_processed_data/Public/transformed_matrix/hicpro_matrix_to_jurcer_matrix_format.py .
+
+cp /nv/vol190/zanglab/zw5j/work2017/T_ALL_CTCF/11_HiC_analysis/f1_preprocess/union_binding_processed_data/Public/union_binding_view2M_interaction/1_get_completed_view2M_interaction.py .
+
+cp /nv/vol190/zanglab/zw5j/work2017/T_ALL_CTCF/11_HiC_analysis/f1_preprocess/union_binding_processed_data/Public/union_binding_view2M_interaction/2_union_binding_view2M_bothside_interaction.py .

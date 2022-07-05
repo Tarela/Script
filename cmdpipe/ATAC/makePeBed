@@ -1,0 +1,16 @@
+#!/bin/bash
+
+if [ $# -lt 1 ];then
+    echo "Need 1 parameters! <name> "
+    exit
+fi
+
+O=$1
+
+#bamToBed -i ${O}.bam -bedpe | awk '{OFS="\t"; print $1,$2,$6,$7,$8,"."}'|sort -k 1,1 -k 2,2g -k 3,3g  > ${O}_PE.bed
+#grep chrM ${O}_PE.bed > ${O}_PEchrM.bed
+#grep -v chrM ${O}_PE.bed > ${O}_PEnoM.bed
+
+cut -f 1-3 ${O}_PEchrM.bed | uniq > ${O}_PEchrMuniq.bed
+cut -f 1-3 ${O}_PEnoM.bed | uniq > ${O}_PEnoMuniq.bed
+

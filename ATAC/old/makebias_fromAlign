@@ -1,0 +1,80 @@
+#!/bin/bash
+
+if [ $# -lt 2 ];then
+    echo "Need 2 parameters!  <name> <species>"
+    exit
+fi
+
+
+N=$1
+S=$2
+
+
+#grep chrM /nv/vol190/zanglab/sh8tv/Project/scATAC/Data/ENCODE_DNase/human_cellline/${N}.bed | sort -k 1,1 -k 2,2g -k 3,3g -k 6,6 > ${N}_chrM.bed &
+#grep -v chrM /nv/vol190/zanglab/sh8tv/Project/scATAC/Data/ENCODE_DNase/human_cellline/${N}.bed > ${N}_nonM_unsort.bed &
+#
+#wait;
+#
+#intersectBed -a ${N}_nonM_unsort.bed -b /nv/vol190/zanglab/sh8tv/Project/scATAC/Data/ENCODE_DNase/human_cellline/${N}_summit200.bed -u | sort -k 1,1 -k 2,2g -k 3,3g -k 6,6 > ${N}_onPeak.bed &
+#intersectBed -a ${N}_nonM_unsort.bed -b /nv/vol190/zanglab/sh8tv/Project/scATAC/Data/ENCODE_DNase/human_cellline/${N}_summit200.bed -v | sort -k 1,1 -k 2,2g -k 3,3g -k 6,6 > ${N}_outPeak.bed &
+#
+#wait;
+# 
+#python /nv/vol190/zanglab/sh8tv/Script/ATAC/filter_dup_reads_sortedBed.py -i ${N}_onPeak.bed -o ${N}_onPeak_dup1.bed  -d 1 &
+#python /nv/vol190/zanglab/sh8tv/Script/ATAC/filter_dup_reads_sortedBed.py -i ${N}_onPeak.bed -o ${N}_onPeak_dup5.bed  -d 5 &
+#python /nv/vol190/zanglab/sh8tv/Script/ATAC/filter_dup_reads_sortedBed.py -i ${N}_onPeak.bed -o ${N}_onPeak_dup10.bed -d 10 &
+#python /nv/vol190/zanglab/sh8tv/Script/ATAC/filter_dup_reads_sortedBed.py -i ${N}_onPeak.bed -o ${N}_onPeak_dup20.bed -d 20 &
+#python /nv/vol190/zanglab/sh8tv/Script/ATAC/filter_dup_reads_sortedBed.py -i ${N}_outPeak.bed -o ${N}_outPeak_dup1.bed  -d 1 &
+#python /nv/vol190/zanglab/sh8tv/Script/ATAC/filter_dup_reads_sortedBed.py -i ${N}_outPeak.bed -o ${N}_outPeak_dup5.bed  -d 5 &
+#python /nv/vol190/zanglab/sh8tv/Script/ATAC/filter_dup_reads_sortedBed.py -i ${N}_outPeak.bed -o ${N}_outPeak_dup10.bed -d 10 &
+#python /nv/vol190/zanglab/sh8tv/Script/ATAC/filter_dup_reads_sortedBed.py -i ${N}_outPeak.bed -o ${N}_outPeak_dup20.bed -d 20 &
+#python /nv/vol190/zanglab/sh8tv/Script/ATAC/filter_dup_reads_sortedBed.py -i ${N}_chrM.bed -o ${N}_chrM_dup1.bed  -d 1 &
+#python /nv/vol190/zanglab/sh8tv/Script/ATAC/filter_dup_reads_sortedBed.py -i ${N}_chrM.bed -o ${N}_chrM_dup5.bed  -d 5 &
+#python /nv/vol190/zanglab/sh8tv/Script/ATAC/filter_dup_reads_sortedBed.py -i ${N}_chrM.bed -o ${N}_chrM_dup10.bed -d 10 &
+#python /nv/vol190/zanglab/sh8tv/Script/ATAC/filter_dup_reads_sortedBed.py -i ${N}_chrM.bed -o ${N}_chrM_dup20.bed -d 20 &
+#
+#wait;
+#
+#python /nv/vol190/zanglab/sh8tv/Script/ATAC/reads_level_cutbias.py -t ${N}_onPeak_dup1.bed -o ${N}_onPeak_dup1_readBias.txt -f 4 -p /nv/vol190/zanglab/sh8tv/Data/DNase/unionDHS/chilin/DHS_hg38.bed -s /nv/vol190/zanglab/sh8tv/Data/Genome/hg38/hg38.2bit  &
+#python /nv/vol190/zanglab/sh8tv/Script/ATAC/reads_level_cutbias.py -t ${N}_onPeak_dup5.bed -o ${N}_onPeak_dup5_readBias.txt -f 4 -p /nv/vol190/zanglab/sh8tv/Data/DNase/unionDHS/chilin/DHS_hg38.bed -s /nv/vol190/zanglab/sh8tv/Data/Genome/hg38/hg38.2bit  &
+#python /nv/vol190/zanglab/sh8tv/Script/ATAC/reads_level_cutbias.py -t ${N}_onPeak_dup10.bed -o ${N}_onPeak_dup10_readBias.txt -f 4 -p /nv/vol190/zanglab/sh8tv/Data/DNase/unionDHS/chilin/DHS_hg38.bed -s /nv/vol190/zanglab/sh8tv/Data/Genome/hg38/hg38.2bit  &
+#python /nv/vol190/zanglab/sh8tv/Script/ATAC/reads_level_cutbias.py -t ${N}_onPeak_dup20.bed -o ${N}_onPeak_dup20_readBias.txt -f 4 -p /nv/vol190/zanglab/sh8tv/Data/DNase/unionDHS/chilin/DHS_hg38.bed -s /nv/vol190/zanglab/sh8tv/Data/Genome/hg38/hg38.2bit  &
+#python /nv/vol190/zanglab/sh8tv/Script/ATAC/reads_level_cutbias.py -t ${N}_onPeak.bed -o ${N}_onPeak_readBias.txt -f 4 -p /nv/vol190/zanglab/sh8tv/Data/DNase/unionDHS/chilin/DHS_hg38.bed -s /nv/vol190/zanglab/sh8tv/Data/Genome/hg38/hg38.2bit  &
+#python /nv/vol190/zanglab/sh8tv/Script/ATAC/reads_level_cutbias.py -t ${N}_outPeak_dup1.bed -o ${N}_outPeak_dup1_readBias.txt -f 4 -p /nv/vol190/zanglab/sh8tv/Data/DNase/unionDHS/chilin/DHS_hg38.bed -s /nv/vol190/zanglab/sh8tv/Data/Genome/hg38/hg38.2bit  &
+#python /nv/vol190/zanglab/sh8tv/Script/ATAC/reads_level_cutbias.py -t ${N}_outPeak_dup5.bed -o ${N}_outPeak_dup5_readBias.txt -f 4 -p /nv/vol190/zanglab/sh8tv/Data/DNase/unionDHS/chilin/DHS_hg38.bed -s /nv/vol190/zanglab/sh8tv/Data/Genome/hg38/hg38.2bit  &
+#python /nv/vol190/zanglab/sh8tv/Script/ATAC/reads_level_cutbias.py -t ${N}_outPeak_dup10.bed -o ${N}_outPeak_dup10_readBias.txt -f 4 -p /nv/vol190/zanglab/sh8tv/Data/DNase/unionDHS/chilin/DHS_hg38.bed -s /nv/vol190/zanglab/sh8tv/Data/Genome/hg38/hg38.2bit  &
+#python /nv/vol190/zanglab/sh8tv/Script/ATAC/reads_level_cutbias.py -t ${N}_outPeak_dup20.bed -o ${N}_outPeak_dup20_readBias.txt -f 4 -p /nv/vol190/zanglab/sh8tv/Data/DNase/unionDHS/chilin/DHS_hg38.bed -s /nv/vol190/zanglab/sh8tv/Data/Genome/hg38/hg38.2bit  &
+#python /nv/vol190/zanglab/sh8tv/Script/ATAC/reads_level_cutbias.py -t ${N}_outPeak.bed -o ${N}_outPeak_readBias.txt -f 4 -p /nv/vol190/zanglab/sh8tv/Data/DNase/unionDHS/chilin/DHS_hg38.bed -s /nv/vol190/zanglab/sh8tv/Data/Genome/hg38/hg38.2bit  &
+python /nv/vol190/zanglab/sh8tv/Script/ATAC/reads_level_cutbias.py -t ${N}_chrM_dup1.bed -o ${N}_chrM_dup1_readBias.txt -f 4 -p /nv/vol190/zanglab/sh8tv/Data/Genome/hg38/hg38_chrM.bed -s /nv/vol190/zanglab/sh8tv/Data/Genome/hg38/hg38.2bit  &
+python /nv/vol190/zanglab/sh8tv/Script/ATAC/reads_level_cutbias.py -t ${N}_chrM_dup5.bed -o ${N}_chrM_dup5_readBias.txt -f 4 -p /nv/vol190/zanglab/sh8tv/Data/Genome/hg38/hg38_chrM.bed -s /nv/vol190/zanglab/sh8tv/Data/Genome/hg38/hg38.2bit  &
+python /nv/vol190/zanglab/sh8tv/Script/ATAC/reads_level_cutbias.py -t ${N}_chrM_dup10.bed -o ${N}_chrM_dup10_readBias.txt -f 4 -p /nv/vol190/zanglab/sh8tv/Data/Genome/hg38/hg38_chrM.bed -s /nv/vol190/zanglab/sh8tv/Data/Genome/hg38/hg38.2bit  &
+python /nv/vol190/zanglab/sh8tv/Script/ATAC/reads_level_cutbias.py -t ${N}_chrM_dup20.bed -o ${N}_chrM_dup20_readBias.txt -f 4 -p /nv/vol190/zanglab/sh8tv/Data/Genome/hg38/hg38_chrM.bed -s /nv/vol190/zanglab/sh8tv/Data/Genome/hg38/hg38.2bit  &
+python /nv/vol190/zanglab/sh8tv/Script/ATAC/reads_level_cutbias.py -t ${N}_chrM.bed -o ${N}_chrM_readBias.txt -f 4 -p /nv/vol190/zanglab/sh8tv/Data/Genome/hg38/hg38_chrM.bed -s /nv/vol190/zanglab/sh8tv/Data/Genome/hg38/hg38.2bit  &
+ 
+wait; 
+ 
+python /nv/vol190/zanglab/sh8tv/Script/ATAC/Seqbias_compare_8mer_encoding_pred_obs.py -b ${N}_onPeak_dup1_readBias.txt -o ${N}_onPeak_dup1_8mer_Encoding_readBias.txt  &
+python /nv/vol190/zanglab/sh8tv/Script/ATAC/Seqbias_compare_8mer_encoding_pred_obs.py -b ${N}_onPeak_dup5_readBias.txt -o ${N}_onPeak_dup5_8mer_Encoding_readBias.txt  &
+python /nv/vol190/zanglab/sh8tv/Script/ATAC/Seqbias_compare_8mer_encoding_pred_obs.py -b ${N}_onPeak_dup10_readBias.txt -o ${N}_onPeak_dup10_8mer_Encoding_readBias.txt  &
+python /nv/vol190/zanglab/sh8tv/Script/ATAC/Seqbias_compare_8mer_encoding_pred_obs.py -b ${N}_onPeak_dup20_readBias.txt -o ${N}_onPeak_dup20_8mer_Encoding_readBias.txt  &
+python /nv/vol190/zanglab/sh8tv/Script/ATAC/Seqbias_compare_8mer_encoding_pred_obs.py -b ${N}_onPeak_readBias.txt -o ${N}_onPeak_8mer_Encoding_readBias.txt  &
+python /nv/vol190/zanglab/sh8tv/Script/ATAC/Seqbias_compare_8mer_encoding_pred_obs.py -b ${N}_outPeak_dup1_readBias.txt -o ${N}_outPeak_dup1_8mer_Encoding_readBias.txt  &
+python /nv/vol190/zanglab/sh8tv/Script/ATAC/Seqbias_compare_8mer_encoding_pred_obs.py -b ${N}_outPeak_dup5_readBias.txt -o ${N}_outPeak_dup5_8mer_Encoding_readBias.txt  &
+python /nv/vol190/zanglab/sh8tv/Script/ATAC/Seqbias_compare_8mer_encoding_pred_obs.py -b ${N}_outPeak_dup10_readBias.txt -o ${N}_outPeak_dup10_8mer_Encoding_readBias.txt  &
+python /nv/vol190/zanglab/sh8tv/Script/ATAC/Seqbias_compare_8mer_encoding_pred_obs.py -b ${N}_outPeak_dup20_readBias.txt -o ${N}_outPeak_dup20_8mer_Encoding_readBias.txt  &
+python /nv/vol190/zanglab/sh8tv/Script/ATAC/Seqbias_compare_8mer_encoding_pred_obs.py -b ${N}_outPeak_readBias.txt -o ${N}_outPeak_8mer_Encoding_readBias.txt  &
+python /nv/vol190/zanglab/sh8tv/Script/ATAC/Seqbias_compare_8mer_encoding_pred_obs.py -b ${N}_chrM_dup1_readBias.txt -o ${N}_chrM_dup1_8mer_Encoding_readBias.txt  &
+python /nv/vol190/zanglab/sh8tv/Script/ATAC/Seqbias_compare_8mer_encoding_pred_obs.py -b ${N}_chrM_dup5_readBias.txt -o ${N}_chrM_dup5_8mer_Encoding_readBias.txt  &
+python /nv/vol190/zanglab/sh8tv/Script/ATAC/Seqbias_compare_8mer_encoding_pred_obs.py -b ${N}_chrM_dup10_readBias.txt -o ${N}_chrM_dup10_8mer_Encoding_readBias.txt  &
+python /nv/vol190/zanglab/sh8tv/Script/ATAC/Seqbias_compare_8mer_encoding_pred_obs.py -b ${N}_chrM_dup20_readBias.txt -o ${N}_chrM_dup20_8mer_Encoding_readBias.txt  &
+python /nv/vol190/zanglab/sh8tv/Script/ATAC/Seqbias_compare_8mer_encoding_pred_obs.py -b ${N}_chrM_readBias.txt -o ${N}_chrM_8mer_Encoding_readBias.txt  &
+
+
+
+
+
+
+
+
+
+

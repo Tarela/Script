@@ -1,0 +1,81 @@
+#!/bin/bash
+
+if [ $# -lt 2 ];then
+    echo "Need 2 parameters! <SRR> <species> "
+    exit
+fi
+
+
+R=$1
+S=$2
+
+wget --quiet ftp-trace.ncbi.nlm.nih.gov:/sra/sra-instant/reads/ByRun/sra/SRR/${R:0:6}/${R}/${R}.sra
+fastq-dump.2.8.0 --split-files ${R}.sra
+bowtie2 -p 8 -x /nv/vol190/zanglab/sh8tv/Data/Mapping_index/bowtie2/${S}_clean -U ${R}_1.fastq -S ${R}.sam   2>&1 >>/dev/null |tee -a ${R}_bowtie2_SE.out
+samtools view -q 30 -bS ${R}.sam > ${R}.bam
+bamToBed -i ${R}.bam | sort -k 1,1 -k 2,2g -k 6,6 > ${R}_SE.bed
+#awk '{OFS="\t";print $1,$2,$3,".",".",$6}' ${R}_SE.bed | uniq > ${R}_SEuniq.bed
+grep chrM ${R}_SE.bed > ${R}_SEchrM.bed
+grep -v chrM ${R}_SE.bed > ${R}_SEnoM.bed
+
+python /nv/vol190/zanglab/sh8tv/Script/general/readsDup_otherFeature_sortedSEbed.py -i ${R}_SE.bed -o ${R}_SE_dupFeature.bed -f 4 -g 100 -s /nv/vol190/zanglab/sh8tv/Data/Genome/${S}/${S}.2bit
+
+
+if [[ ${S} == 'mm10' ]]
+then
+SS='mm'
+SSS='mouse'
+else
+SS='hs'
+SSS='human'
+fi
+
+
+#samtools view -bS ${R}.sam > ${R}_raw.bam
+
+# filtering & samTObam
+#samtools view -H ${R}_raw.bam > ${R}_filtered.sam 
+#samtools view -f 0x2 ${R}_raw.bam | awk 'NR % 2 == 1{mapq=$5;forward=$0} NR % 2 == 0{if($5>=30 && mapq>=30 && substr($3,1,3)=="chr" && $7=="=" ) print forward"\n"$0}' >> ${R}_filtered.sam 
+#samtools view -bS ${R}_filtered.sam > ${R}.bam
+#wait
+#rm ${R}.sam ${R}_filtered.sam 
+#/nv/vol190/zanglab/sh8tv/Script/ATAC/./makebias ${R} ${S}
+
+# PE process
+#bamToBed -i ${R}.bam -bedpe | awk '{OFS="\t";if($2 != $5 && $3 != $6 && $9=="+" && $10 == "-") print $1,$2,$6,$7,$8,"."}'|sort -k 1,1 -k 2,2g -k 3,3g  > ${R}_PE.bed 
+#grep chrM ${R}_PE.bed > ${R}_PEchrM.bed
+#grep -v chrM ${R}_PE.bed > ${R}_PEnoM.bed
+#
+
+# peak calling
+
+#if [ ! -f ${R}_PE.bed ]
+#then
+macs2 callpeak --SPMR -B -q 0.01 --keep-dup 1 --nomodel --extsize 50 -f BAM -g ${SS} -t ${R}.bam -n ${R}
+mv ${R}_treat_pileup.bdg ${R}.bdg
+bdg2bw ${R}.bdg /nv/vol190/zanglab/sh8tv/Data/Genome/${S}/${S}_clean.len
+awk '{OFS="\t";if ($2>=200) print $1,$2-200,$2+200,$4,$5;}' ${R}_summits.bed  > ${R}_summit200.bed
+
+intersectBed -a  ${R}_SEnoM.bed -b ${R}_summit200.bed -u > ${R}_SEnoM_ONownPeak.bed
+python /nv/vol190/zanglab/sh8tv/Script/ATAC/ATACseqbias_fromBED.py -p ${R}_summit200.bed -t ${R}_SEnoM_ONownPeak.bed -o ${R}_on_ownPeak_raw8mer.txt -f 4 -s /nv/vol190/zanglab/sh8tv/Data/Genome/${S}/${S}.2bit
+python /nv/vol190/zanglab/sh8tv/Script/ATAC/ATACseqbias_fromBED.py -p /nv/vol190/zanglab/sh8tv/Data/Genome/${S}/${S}_chrM.bed -t ${R}_SEchrM.bed -o ${R}_on_chrM_raw8mer.txt -f 4 -s /nv/vol190/zanglab/sh8tv/Data/Genome/${S}/${S}.2bit
+
+#else
+#macs2 callpeak --SPMR -B -q 0.01 --keep-dup 1 -f BAMPE -g ${SS} -t ${R}.bam -n ${R}
+#intersectBed -a  ${R}_PEnoM.bed -b ${R}_summit200.bed -u > ${R}_PEnoM_ONownPeak.bed
+#python /nv/vol190/zanglab/sh8tv/Script/ATAC/ATACseqbias_fromBED.py -p ${R}_summit200.bed -t ${R}_PEnoM_ONownPeak.bed -o ${R}_on_ownPeak_raw8mer.txt -f 4 -s /nv/vol190/zanglab/sh8tv/Data/Genome/${S}/${S}.2bit
+#python /nv/vol190/zanglab/sh8tv/Script/ATAC/ATACseqbias_fromBED.py -p /nv/vol190/zanglab/sh8tv/Data/Genome/${S}/${S}_chrM.bed -t ${R}_PEchrM.bed -o ${R}_on_chrM_raw8mer.txt -f 4 -s /nv/vol190/zanglab/sh8tv/Data/Genome/${S}/${S}.2bit
+#fi
+#mv ${R}_treat_pileup.bdg ${R}.bdg
+#bdg2bw ${R}.bdg /nv/vol190/zanglab/sh8tv/Data/Genome/${S}/${S}_clean.len
+#awk '{OFS="\t";if ($2>=200) print $1,$2-200,$2+200,$4,$5;}' ${R}_summits.bed  > ${R}_summit200.bed
+#
+# bias generating
+#intersectBed -a  ${R}_PEnoM.bed -b ${R}_summit200.bed -u > ${R}_PEnoM_ONownPeak.bed
+#python /nv/vol190/zanglab/sh8tv/Script/ATAC/ATACseqbias_fromBED.py -p ${R}_summit200.bed -t ${R}_PEnoM_ONownPeak.bed -o ${R}_on_ownPeak_raw8mer.txt -f 4 -s /nv/vol190/zanglab/sh8tv/Data/Genome/${S}/${S}.2bit
+python /nv/vol190/zanglab/sh8tv/Script/ATAC/Seqbias_compare_8mer_encoding_pred_obs.py -b ${R}_on_ownPeak_raw8mer.txt -o ${R}_on_ownPeak_Enc8mer.txt
+#
+#python /nv/vol190/zanglab/sh8tv/Script/ATAC/ATACseqbias_fromBED.py -p /nv/vol190/zanglab/sh8tv/Data/Genome/${S}/${S}_chrM.bed -t ${R}_PEchrM.bed -o ${R}_on_chrM_raw8mer.txt -f 4 -s /nv/vol190/zanglab/sh8tv/Data/Genome/${S}/${S}.2bit
+python /nv/vol190/zanglab/sh8tv/Script/ATAC/Seqbias_compare_8mer_encoding_pred_obs.py -b ${R}_on_chrM_raw8mer.txt -o ${R}_on_chrM_Enc8mer.txt
+
+

@@ -1,0 +1,179 @@
+'''
+Created on XXXX-XX-XX
+
+@author: Tarela
+'''
+#!/usr/bin/env python
+#Time-stamp:<Tarela>
+"""
+Description:
+
+"""
+
+# ------------------------------------
+# Python Modual
+# ------------------------------------
+
+import os,sys,re
+from optparse import OptionParser
+import logging
+import string
+import math,time
+from CistromeAP.taolib.CoreLib.BasicStat.Func import *
+from CistromeAP.jianlib.BwReader import BwIO
+try:
+    from bx.bbi.bigwig_file import BigWigFile
+except:
+    sys.stderr.write("Need bx-python!")
+    sys.exit()
+# ------------------------------------
+# error and warning
+# ------------------------------------
+
+
+# ------------------------------------
+# Misc functions
+# ------------------------------------
+
+def sitepro_scan(pattern,peak,out,w_plus,w_minus,trunk):
+    inf = open(pattern)
+    pattern_plus = map(float,inf.readline().strip().split(","))
+    pattern_minus = map(float,inf.readline().strip().split(","))
+    all = sum(pattern_plus)+sum(pattern_minus)
+    p_plus = []
+    p_minus= []
+    for i in pattern_plus:
+        p_plus.append(i/all)
+    for i in pattern_minus:
+        p_minus.append(i/all)
+    inf.close()
+    l = len(pattern_plus)
+    p0 = [1.0/(2*l)]*l
+    inf = open(peak)
+    p=BwIO(w_plus)
+    q=BwIO(w_minus)
+    chrom_len1 = {}
+    chrom_len2 = {}
+    for i in p.chromosomeTree['nodes']:
+        chrom_len1[i['key']] = i['chromSize']
+    for i in q.chromosomeTree['nodes']:
+        chrom_len2[i['key']] = i['chromSize']
+    w_plus_H=BigWigFile(open(w_plus, 'rb'))
+    w_minus_H=BigWigFile(open(w_minus, 'rb'))
+    footprint = []
+    count = 0
+    t=time.time()
+    for line in inf:
+        ll = line.split()
+        if chrom_len1.has_key(ll[0])  and chrom_len2.has_key(ll[0]):
+#            print ll[0],int(ll[1])-l,int(ll[2])+l,(int(ll[2])-int(ll[1])+2*l)
+            p_sum = list(w_plus_H.summarize(ll[0],int(ll[1]),int(ll[2]),(int(ll[2])-int(ll[1]))).sum_data)
+            m_sum = list(w_minus_H.summarize(ll[0],int(ll[1]),int(ll[2]),(int(ll[2])-int(ll[1]))).sum_data)
+            #print len(p_sum)
+            last_start = "NA"
+            last_end = "NA"
+            last_value = "NA"
+            for i in range(len(p_sum)-l):
+                o_plus = map(float,p_sum[i:i+l])
+                o_minus = map(float,m_sum[i:i+l])
+                for k in range(len(o_plus)):
+                    if o_plus[k] > trunk:
+                        o_plus[k]=trunk
+                    if o_minus[k] > trunk:
+                        o_minus[k] = trunk
+                #print pattern_plus,p0
+                score =  match_pattern(p_plus,p_minus,p0,p0,o_plus,o_minus,l)
+                if score == "NA":
+                    continue
+        #        print score#i,i+l,score,last_start,last_end,last_value
+                if last_start == "NA" :
+                    last_start = i
+                    last_end = i+l
+                    last_value = score
+                elif i >= last_end:
+                    footprint.append([ll[0],int(ll[1])+last_start+3,int(ll[1])+last_end-3,last_value])
+                    last_start = i
+                    last_end = i+l
+                    last_value = score
+                elif score > last_value:
+                    last_start = i
+                    last_end = i+l
+                    last_value = score
+            footprint.append([ll[0],int(ll[1])+last_start+3,int(ll[1])+last_end-3,last_value])
+        if count%100 ==0:
+            print time.time()-t
+            t = time.time()
+        count += 1
+    outf = open(out,'w')
+    for fp in footprint:
+        newline = "\t".join(map(str,fp))+"\n"
+        outf.write(newline)
+    outf.close()
+
+              #  print score
+
+def match_pattern(pattern_plus,pattern_minus,pattern_plus0,pattern_minus0,observe_plus,observe_minus,l):
+    ### l is the length of pattern
+    f1=1
+    #f0=1
+    for i in range(l):
+        f1 = f1 * pow(pattern_plus[i],observe_plus[i]) * pow(pattern_minus[i],observe_minus[i])/(pow(pattern_plus0[i],observe_plus[i]) * pow(pattern_minus0[i],observe_minus[i]))#/(reduce(lambda x,y:x*y, range(1,observe_plus+1))*reduce(lambda x,y:x*y, range(1,observe_minus+1)))
+    #print f1,f0
+    #print math.log10(f1/f0)
+    if f1 == 0 :
+        return "NA"
+    else:
+        return math.log10(f1)
+
+
+# ------------------------------------
+# Main function
+# ------------------------------------
+
+def main():
+    usage = "python %prog >.< "
+    description = """>.<"""
+
+    optparser = OptionParser(version="%prog 1",description=description,usage=usage,add_help_option=False)
+    optparser.add_option("-h","--help",action="help",help="Show this help message and exit.")
+
+#========major options=============
+    optparser.add_option("-p","--pattern",dest="pattern",type="str",
+                         help="")
+    optparser.add_option("-i","--interval",dest="interval",type="str",
+                         help="")
+    optparser.add_option("-o","--output",dest="output",type="str",
+                         help="")
+    optparser.add_option("--w1",dest="w_plus",type="str",default = "/home/sh430/Project/CFCE/Pair_end_DNase/Hiseq_pairend_DNase/Single_end_DNase_Data/mapping/25U_50U_single_plus_cutsite.bw",
+                         help="")
+    optparser.add_option("--w2",dest="w_minus",type="str",default = "/home/sh430/Project/CFCE/Pair_end_DNase/Hiseq_pairend_DNase/Single_end_DNase_Data/mapping/25U_50U_single_minus_cutsite.bw",
+                         help="")
+#========minor options=============
+    optparser.add_option("-t","--trunk",dest="trunk",type="float",default = 4.0,
+                         help="")
+
+
+    (options,args) = optparser.parse_args()
+
+    pattern = options.pattern
+    interval = options.interval
+    output = options.output
+    w_plus = options.w_plus
+    w_minus = options.w_minus
+    trunk = options.trunk
+
+    if not pattern:
+        optparser.print_help()
+        sys.exit(1)
+    
+    sitepro_scan(pattern,interval,output,w_plus,w_minus,trunk)
+
+
+if __name__== '__main__':
+    try:
+        main()
+
+    except KeyboardInterrupt:
+        sys.stderr.write("User interrupt me ^_^ \n")
+        sys.exit(0)
+

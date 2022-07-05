@@ -1,0 +1,21 @@
+#!/bin/bash
+
+if [ $# -lt 2 ];then
+    echo "Need 2 parameters! <species> <readlen>"
+    exit
+fi
+
+
+S=$1
+R=$2
+
+#python  /nv/vol190/zanglab/sh8tv/Script/mappable_region/generate_reads_genome.py -i /nv/vol190/zanglab/sh8tv/Data/Genome/${S}/${S}.fa -o ${S}_${R}_chr_fareads.fa -l ${R}
+
+#bowtie -S  -f -p 8 -m 1 /nv/vol190/zanglab/sh8tv/Data/Mapping_index/bowtie1/${S} ${S}_${R}_chr_fareads.fa ${S}_${R}_chr_fareads.sam   2>&1 >>/dev/null |tee -a ${S}_${R}_chr_fareads_mappbility.out
+#samtools view -bht /nv/vol190/zanglab/sh8tv/Data/Genome/hg38/chromInfo_${S}.txt ${S}_${R}_chr_fareads.sam -o ${S}_${R}_chr_fareads.bam
+#bamToBed -i ${S}_${R}_chr_fareads.bam > ${S}_${R}_chr_fareads.bed
+awk '{OFS="\t";if(substr($3,1,3)=="chr") print $3,$4-1,$4+49,".",".","+"; }' ${S}_${R}_chr_fareads.sam > ${S}_${R}_chr_fareads.bed
+macs2 pileup -i ${S}_${R}_chr_fareads.bed -f BED --extsize ${R} -o ${S}_${R}_chr_fareads.bdg
+#bdg2bw  ${S}_${R}_chr_fareads.bdg /mnt/Storage/data/sync_cistrome_lib/chromLen/${S}.len
+awk -v test="$R" '{if ($4==test && $3-$2 > 100) print $0;}'  ${S}_${R}_chr_fareads.bdg > ${S}_${R}_chr_fareads_ge100mapregion.bed
+
